@@ -1,0 +1,59 @@
+name: Unpack uploaded zips and commit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # allow pushing changes
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Unzip admin_app.zip
+        run: |
+          if [ -f admin_app.zip ]; then
+            rm -rf admin_app
+            unzip -o admin_app.zip -d admin_app
+          fi
+
+      - name: Unzip customer_app.zip
+        run: |
+          if [ -f customer_app.zip ]; then
+            rm -rf customer_app
+            unzip -o customer_app.zip -d customer_app
+          fi
+
+      - name: Unzip www.zip
+        run: |
+          if [ -f www.zip ]; then
+            rm -rf www
+            unzip -o www.zip -d www
+          fi
+
+      - name: Unzip github.zip
+        run: |
+          if [ -f github.zip ]; then
+            rm -rf github
+            unzip -o github.zip -d github
+          fi
+
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Unpacked all zips into folders"
+            git push
+          else
+            echo "No changes to commit"
+          fi
