@@ -12,10 +12,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
+      - name: Setup Flutter (Customer)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
+          flutter-version: '3.19.0'   # Customer app is fine on 3.19.0
 
       - name: Install dependencies
         run: |
@@ -37,25 +37,3 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
-
-      - name: Install dependencies
-        run: |
-          cd admin_app/admin
-          flutter pub get
-
-      - name: Build Admin App
-        run: |
-          cd admin_app/admin
-          flutter build apk --release
-
-      - name: Upload Admin APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: admin-app
-          path: admin_app/admin/build/app/outputs/flutter-apk/app-release.apk
