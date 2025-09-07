@@ -1,3 +1,11 @@
+name: Build Apps
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,6 +36,3 @@ jobs:
 
       - name: Upload Admin APK
         uses: actions/upload-artifact@v3
-        with:
-          name: admin-app
-          path: admin_app/admin/build/app/outputs/flutter-apk/app-release.apk
