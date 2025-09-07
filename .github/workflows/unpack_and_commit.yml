@@ -1,0 +1,62 @@
+name: Unpack uploaded zips and commit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Install unzip & rsync
+        run: sudo apt-get update && sudo apt-get install -y unzip rsync
+
+      - name: Show repo files
+        run: ls -la
+
+      - name: Unzip admin_app.zip (if exists)
+        run: |
+          if [ -f admin_app.zip ]; then
+            unzip -o admin_app.zip -d admin_app
+          else
+            echo "admin_app.zip not found"
+          fi
+
+      - name: Unzip customer_app.zip (if exists)
+        run: |
+          if [ -f customer_app.zip ]; then
+            unzip -o customer_app.zip -d customer_app
+          else
+            echo "customer_app.zip not found"
+          fi
+
+      - name: Unzip www.zip (if exists)
+        run: |
+          if [ -f www.zip ]; then
+            unzip -o www.zip -d www
+          else
+            echo "www.zip not found"
+          fi
+
+      - name: Unzip .github.zip (optional, if you uploaded it)
+        run: |
+          if [ -f .github.zip ]; then
+            unzip -o .github.zip -d .github_tmp
+            rsync -a .github_tmp/. ./
+            rm -rf .github_tmp
+          else
+            echo ".github.zip not found"
+          fi
+
+      - name: Commit extracted files (only if changes)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          # commit only if there are staged changes
+          git diff --cached --quiet || (git commit -m "Unpack uploaded zips" && git push)
