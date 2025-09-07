@@ -1,0 +1,14 @@
+name: omkar_travels_rewards
+description: Demo Omkar Travels Rewards app
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
