@@ -13,27 +13,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Read Flutter SDK constraint from pubspec.yaml
       - name: Read Flutter version
         id: flutter_version
         run: |
-          VERSION=$(grep "sdk:" pubspec.yaml | sed -E 's/.*>=(.*)<.*/\1/')
+          VERSION=$(grep "sdk:" customer_app/pubspec.yaml | sed -E 's/.*>=(.*)<.*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # Install the correct Flutter version
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ steps.flutter_version.outputs.version }}
 
       - name: Install dependencies
+        working-directory: customer_app
         run: flutter pub get
 
       - name: Build Customer App
+        working-directory: customer_app
         run: flutter build apk --release
 
       - name: Upload Customer APK
         uses: actions/upload-artifact@v4
         with:
           name: customer-app
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: customer_app/build/app/outputs/flutter-apk/app-release.apk
