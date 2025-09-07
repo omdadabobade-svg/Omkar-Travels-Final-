@@ -4,38 +4,36 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Read Flutter SDK constraint from pubspec.yaml
+      - name: Read Flutter version
+        id: flutter_version
+        run: |
+          VERSION=$(grep "sdk:" pubspec.yaml | sed -E 's/.*>=(.*)<.*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Install the correct Flutter version
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.5'
+          flutter-version: ${{ steps.flutter_version.outputs.version }}
 
-      # Build Customer App
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Build Customer App
-        working-directory: ./customer_app/customer
         run: flutter build apk --release
 
       - name: Upload Customer APK
         uses: actions/upload-artifact@v4
         with:
           name: customer-app
-          path: customer_app/customer/build/app/outputs/flutter-apk/app-release.apk
-
-      # Build Admin App
-      - name: Build Admin App
-        working-directory: ./admin_app/admin
-        run: flutter build apk --release
-
-      - name: Upload Admin APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: admin-app
-          path: admin_app/admin/build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
