@@ -1,51 +1,33 @@
-name: Build Omkar Travels APKs
-
-on:
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+        uses: actions/checkout@v3
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.19.6
+          flutter-version: '3.10.5'
 
+      # Build Customer App
       - name: Build Customer App
-        working-directory: customer_app
-        run: |
-          flutter pub get
-          flutter build apk --release
+        working-directory: ./customer_app/customer
+        run: flutter build apk --release
 
       - name: Upload Customer APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: customer-app
-          path: customer_app/build/app/outputs/flutter-apk/app-release.apk
+          path: customer_app/customer/build/app/outputs/flutter-apk/app-release.apk
 
+      # Build Admin App
       - name: Build Admin App
-        working-directory: admin_app
-        run: |
-          flutter pub get
-          flutter build apk --release
+        working-directory: ./admin_app/admin
+        run: flutter build apk --release
 
       - name: Upload Admin APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: admin-app
-          path: admin_app/build/app/outputs/flutter-apk/app-release.apk
+          path: admin_app/admin/build/app/outputs/flutter-apk/app-release.apk
