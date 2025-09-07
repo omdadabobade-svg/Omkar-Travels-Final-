@@ -15,18 +15,6 @@ jobs:
         with:
           ref: main
 
-      - name: Install unzip
-        run: sudo apt-get update && sudo apt-get install -y unzip
-
-      - name: Unzip all zips
-        run: |
-          for file in *.zip; do
-            dir="${file%.zip}"
-            rm -rf "$dir"
-            unzip -o "$file" -d "$dir"
-            rm "$file"
-          done
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -38,19 +26,26 @@ jobs:
         with:
           flutter-version: 3.19.6
 
-      - name: Build all Flutter projects
+      - name: Build Customer App
+        working-directory: customer_app
         run: |
-          find . -name "pubspec.yaml" | while read yaml; do
-            proj=$(dirname "$yaml")
-            echo "🚀 Building project in $proj"
-            cd "$proj"
-            flutter pub get
-            flutter build apk --release
-            cd -
-          done
+          flutter pub get
+          flutter build apk --release
 
-      - name: Upload APKs
+      - name: Upload Customer APK
         uses: actions/upload-artifact@v4
         with:
-          name: all-apks
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          name: customer-app
+          path: customer_app/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Build Admin App
+        working-directory: admin_app
+        run: |
+          flutter pub get
+          flutter build apk --release
+
+      - name: Upload Admin APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-app
+          path: admin_app/build/app/outputs/flutter-apk/app-release.apk
