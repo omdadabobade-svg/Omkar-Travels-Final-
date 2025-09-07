@@ -1,4 +1,4 @@
-name: Build Apps
+name: build
 
 on:
   push:
@@ -6,34 +6,56 @@ on:
       - main
 
 jobs:
-  build:
+  build-customer:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Read Flutter version
-        id: flutter_version
-        run: |
-          VERSION=$(grep "sdk:" customer_app/pubspec.yaml | sed -E 's/.*>=(.*)<.*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.flutter_version.outputs.version }}
+          flutter-version: '3.19.0'
 
       - name: Install dependencies
-        working-directory: customer_app
-        run: flutter pub get
+        run: |
+          cd customer_app/customer
+          flutter pub get
 
       - name: Build Customer App
-        working-directory: customer_app
-        run: flutter build apk --release
+        run: |
+          cd customer_app/customer
+          flutter build apk --release
 
       - name: Upload Customer APK
         uses: actions/upload-artifact@v4
         with:
           name: customer-app
-          path: customer_app/build/app/outputs/flutter-apk/app-release.apk
+          path: customer_app/customer/build/app/outputs/flutter-apk/app-release.apk
+
+  build-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+
+      - name: Install dependencies
+        run: |
+          cd admin_app/admin
+          flutter pub get
+
+      - name: Build Admin App
+        run: |
+          cd admin_app/admin
+          flutter build apk --release
+
+      - name: Upload Admin APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-app
+          path: admin_app/admin/build/app/outputs/flutter-apk/app-release.apk
